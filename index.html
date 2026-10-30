@@ -3,23 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جدول الدراسة والتمارين والورد - Study & Fitness Hub</title>
+    <title>منصة الدراسة والتمارين والمالية Pro - Study, Fitness & Finance Hub</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- مكتبة Chart.js للرسوم البيانية -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
+    <!-- حاوية التنبيهات العائمة (Toast Notifications) -->
+    <div id="toast-container" class="toast-container"></div>
+
     <div class="app-container">
         <!-- الشريط الجانبي -->
-        <aside class="sidebar">
+        <aside class="sidebar no-print">
             <div class="brand">
                 <span class="logo-icon">💻</span>
-                <h2>Study & Fitness</h2>
+                <h2>Study & Life Hub</h2>
             </div>
             <div class="user-profile">
-                🎓  هندسة معلوماتية - سنة ثالثة
+                🎓 طالب هندسة معلوماتية - سنة ثالثة
             </div>
-            <div class="day-filter">
+
+            <!-- التنقل بين الأقسام الرئيسية -->
+            <div class="main-nav">
+                <button class="nav-btn active" onclick="switchMainTab('schedule-view', this)">📅 الجدول الأسبوعي</button>
+                <button class="nav-btn" onclick="switchMainTab('finance-view', this)">💰 المصاريف والمدخول</button>
+                <button class="nav-btn" onclick="switchMainTab('reports-view', this)">📊 صفحة التقارير والتحليلات</button>
+                <button class="nav-btn" onclick="switchMainTab('badges-view', this)">🏆 الأوسمة والإنجازات</button>
+            </div>
+
+            <hr class="sidebar-divider">
+
+            <!-- تصفية الأيام -->
+            <div id="sidebar-day-filter" class="day-filter">
                 <h3>📅 تصفية حسب اليوم:</h3>
                 <button class="day-btn active" onclick="filterDay('all', this)">كل الأيام</button>
                 <button class="day-btn" onclick="filterDay('الجمعة', this)">الجمعة</button>
@@ -30,35 +47,140 @@
                 <button class="day-btn" onclick="filterDay('الأربعاء', this)">الأربعاء</button>
                 <button class="day-btn" onclick="filterDay('الخميس', this)">الخميس</button>
             </div>
+
+            <hr class="sidebar-divider">
+
+            <!-- إدارة النسخ الاحتياطي -->
+            <div class="backup-actions">
+                <h3>💾 النسخ الاحتياطي:</h3>
+                <button class="action-btn-secondary" onclick="exportBackupData()">📥 تصدير البيانات (JSON)</button>
+                <button class="action-btn-secondary" onclick="document.getElementById('import-file-input').click()">📤 استعادة البيانات</button>
+                <input type="file" id="import-file-input" style="display:none;" accept=".json" onchange="importBackupData(event)">
+            </div>
+
+            <div class="week-action-box">
+                <button class="reset-week-btn" onclick="archiveAndResetWeek()">🔄 إنهاء الأسبوع وتوثيقه</button>
+            </div>
         </aside>
 
         <!-- المحتوى الرئيسي -->
         <main class="main-content">
-            <header>
+            <header class="no-print">
                 <div>
-                    <h1>جدول المتابعة الأسبوعي الشامل 🎯</h1>
-                    <p class="subtitle">الجامعة، البرمجة، الورد اليومي، التمارين الرياضية في الجيم</p>
+                    <h1 id="page-main-title">جدول المتابعة الأسبوعي الشامل 🎯</h1>
+                    <p class="subtitle">الجامعة، البرمجة، الورد اليومي، التمارين الرياضية والميزانية</p>
                 </div>
                 <div class="header-controls">
-                    <button class="theme-toggle-btn" onclick="toggleDarkMode()">🌓 الوضع المظلم</button>
+                    <button id="theme-toggle-btn" class="theme-toggle-btn" onclick="toggleDarkMode()">🌓 الوضع المظلم</button>
+                    <button class="print-btn" onclick="window.print()">🖨️ طباعة / PDF</button>
                 </div>
             </header>
 
-            <!-- ملخص الإنجاز -->
-            <section class="overall-progress-card">
-                <div class="progress-info">
-                    <h3>📊 نسبة إنجاز مهام الأسبوع الكلية</h3>
-                    <span id="progress-percentage">0%</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div id="main-progress-bar" class="progress-fill"></div>
-                </div>
-            </section>
+            <!-- 1. عرض الجدول الأسبوعي -->
+            <div id="schedule-view" class="tab-view active">
+                <section class="overall-progress-card">
+                    <div class="progress-info">
+                        <h3>📊 نسبة إنجاز مهام الأسبوع الحالي</h3>
+                        <span id="progress-percentage">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="main-progress-bar" class="progress-fill"></div>
+                    </div>
+                </section>
 
-            <!-- جدول الأيام -->
-            <section id="schedule-cards-container" class="schedule-grid">
-                <!-- يتولد ديناميكياً -->
-            </section>
+                <section id="schedule-cards-container" class="schedule-grid"></section>
+            </div>
+
+            <!-- 2. عرض الميزانية والمصاريف -->
+            <div id="finance-view" class="tab-view">
+                <div class="reports-stats-grid">
+                    <div class="stat-box green">
+                        <h3>إجمالي المدخول</h3>
+                        <p id="stat-total-income">0 ل.س</p>
+                    </div>
+                    <div class="stat-box red">
+                        <h3>إجمالي المصاريف</h3>
+                        <p id="stat-total-expenses">0 ل.س</p>
+                    </div>
+                    <div class="stat-box blue">
+                        <h3>الرصيد المتبقي</h3>
+                        <p id="stat-net-balance">0 ل.س</p>
+                    </div>
+                </div>
+
+                <div class="form-card-box no-print">
+                    <h3>➕ تسجيل حركة مالية جديدة</h3>
+                    <div class="finance-form">
+                        <input type="text" id="trans-title" placeholder="بيان الحركة (مثال: مواصلات جامعة، مكافأة...)">
+                        <input type="number" id="trans-amount" placeholder="المبلغ">
+                        <select id="trans-type">
+                            <option value="expense">📉 مصروف (-)</option>
+                            <option value="income">📈 مدخول (+)</option>
+                        </select>
+                        <button onclick="addFinanceTransaction()">تسجيل الحركة</button>
+                    </div>
+                </div>
+
+                <div class="archive-history-section" style="margin-top: 20px;">
+                    <div class="table-header-controls no-print">
+                        <h3>📜 سجل المعاملات المالية</h3>
+                        <input type="text" id="finance-search-input" placeholder="🔍 بحث في المعاملات..." oninput="renderFinance()">
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>البيان</th>
+                                <th>المبلغ</th>
+                                <th>النوع</th>
+                                <th>التاريخ</th>
+                                <th class="no-print">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="finance-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. عرض صفحة التقارير -->
+            <div id="reports-view" class="tab-view">
+                <div class="reports-stats-grid">
+                    <div class="stat-box blue">
+                        <h3>إجمالي المهام المنجزة الكلية</h3>
+                        <p id="stat-total-completed">0</p>
+                    </div>
+                    <div class="stat-box green">
+                        <h3>معدل الإنجاز العام للأجندة</h3>
+                        <p id="stat-overall-rate">0%</p>
+                    </div>
+                    <div class="stat-box purple">
+                        <h3>عدد الأسابيع الموثقة</h3>
+                        <p id="stat-weeks-count">0 أسبوع</p>
+                    </div>
+                </div>
+
+                <div class="charts-wrapper-grid">
+                    <div class="chart-card">
+                        <h3>📈 نسبة الإنجاز في الأسابيع السابقة</h3>
+                        <canvas id="weeklyProgressChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>📊 نسبة المصاريف مقابل المدخول</h3>
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="archive-history-section">
+                    <h3>📜 سجل تقارير الأسابيع المكتملة</h3>
+                    <div id="archive-list" class="archive-list"></div>
+                </div>
+            </div>
+
+            <!-- 4. عرض الأوسمة والإنجازات -->
+            <div id="badges-view" class="tab-view">
+                <h2>🏆 لوحة الأوسمة والإنجازات الشخصية</h2>
+                <p class="subtitle">تكتسب هذه الأوسمة تلقائياً بناءً على استمراريتك وإنجازك الدائم!</p>
+                <div id="badges-grid" class="badges-grid"></div>
+            </div>
         </main>
     </div>
 

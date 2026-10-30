@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جدول الدراسة والتمارين والورد - Study & Fitness Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- الشريط الجانبي -->
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="logo-icon">💻</span>
+                <h2>Study & Fitness</h2>
+            </div>
+            <div class="user-profile">
+                🎓  هندسة معلوماتية - سنة ثالثة
+            </div>
+            <div class="day-filter">
+                <h3>📅 تصفية حسب اليوم:</h3>
+                <button class="day-btn active" onclick="filterDay('all', this)">كل الأيام</button>
+                <button class="day-btn" onclick="filterDay('الجمعة', this)">الجمعة</button>
+                <button class="day-btn" onclick="filterDay('السبت', this)">السبت</button>
+                <button class="day-btn" onclick="filterDay('الأحد', this)">الأحد</button>
+                <button class="day-btn" onclick="filterDay('الإثنين', this)">الإثنين</button>
+                <button class="day-btn" onclick="filterDay('الثلاثاء', this)">الثلاثاء</button>
+                <button class="day-btn" onclick="filterDay('الأربعاء', this)">الأربعاء</button>
+                <button class="day-btn" onclick="filterDay('الخميس', this)">الخميس</button>
+            </div>
+        </aside>
+
+        <!-- المحتوى الرئيسي -->
+        <main class="main-content">
+            <header>
+                <div>
+                    <h1>جدول المتابعة الأسبوعي الشامل 🎯</h1>
+                    <p class="subtitle">الجامعة، البرمجة، الورد اليومي، التمارين الرياضية في الجيم</p>
+                </div>
+                <div class="header-controls">
+                    <button class="theme-toggle-btn" onclick="toggleDarkMode()">🌓 الوضع المظلم</button>
+                </div>
+            </header>
+
+            <!-- ملخص الإنجاز -->
+            <section class="overall-progress-card">
+                <div class="progress-info">
+                    <h3>📊 نسبة إنجاز مهام الأسبوع الكلية</h3>
+                    <span id="progress-percentage">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="main-progress-bar" class="progress-fill"></div>
+                </div>
+            </section>
+
+            <!-- جدول الأيام -->
+            <section id="schedule-cards-container" class="schedule-grid">
+                <!-- يتولد ديناميكياً -->
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
